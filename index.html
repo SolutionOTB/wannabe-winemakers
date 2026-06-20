@@ -7,6 +7,9 @@
 <title>Wannabe Winemakers — Custom Blend Throwdown</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#1c160f; --ink2:#2b2218; --panel:#221b13;
@@ -113,6 +116,115 @@
   .modal .row{display:flex;gap:10px;margin-top:16px}
   .modal .row button{flex:1}
   .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+
+  /* ============ PREMIUM DESIGN LAYER ============ */
+  :root{
+    --gold:#c9a24b; --gold-bright:#f0d585; --gold-soft:#f3e2b4;
+    --wine:#7d2438; --wine-deep:#511522;
+    --ink:#211a13; --muted:#9c8c74; --line:#ece1c9;
+    --cab:#6c2f86; --franc:#c0413f; --pv:#2f47a0;
+  }
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:
+      radial-gradient(120% 70% at 50% -10%, #fbf1d8 0%, rgba(251,241,216,0) 60%),
+      linear-gradient(180deg,#fbf6ec 0%, #f4ecdb 100%);
+    background-attachment:fixed;-webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,header.app .name,.autile .sym,.modal h3,.resultrow .meta>div:first-child,.score{
+    font-family:'Fraunces',Georgia,serif;
+  }
+  h2{font-weight:600;letter-spacing:-.4px;font-size:26px}
+  h3{font-weight:600;letter-spacing:-.2px}
+  .muted{color:var(--muted)}
+
+  /* header */
+  header.app{
+    background:
+      radial-gradient(90% 120% at 50% -30%, #3a2c17 0%, #1a130c 70%),
+      linear-gradient(180deg,#221a10,#15100a);
+    border-bottom:1px solid rgba(201,162,75,.35);
+    box-shadow:0 6px 30px rgba(0,0,0,.4);padding:20px 16px 16px;overflow:hidden
+  }
+  header.app:after{content:"";position:absolute;left:-30%;top:0;width:60%;height:100%;
+    background:linear-gradient(105deg,transparent,rgba(255,236,180,.10),transparent);
+    transform:skewX(-18deg);animation:sheen 7s ease-in-out infinite}
+  @keyframes sheen{0%,100%{left:-40%}55%{left:120%}}
+  .autile{animation:float 5.5s ease-in-out infinite;box-shadow:0 0 22px rgba(201,162,75,.28), inset 0 0 18px rgba(201,162,75,.18)}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  .autile .sym{font-weight:700;text-shadow:0 1px 10px rgba(240,213,133,.5)}
+  header.app .name{font-weight:600;letter-spacing:6px;text-shadow:0 1px 14px rgba(0,0,0,.5)}
+  header.app .sub{color:var(--gold-soft);opacity:.85}
+
+  /* nav tabs */
+  nav.tabs button{background:rgba(255,255,255,.7);backdrop-filter:blur(6px);transition:.18s;font-weight:500}
+  nav.tabs button:hover{border-color:var(--gold)}
+  nav.tabs button.active{background:linear-gradient(160deg,var(--wine),var(--wine-deep));border-color:var(--wine-deep);box-shadow:0 3px 10px rgba(125,36,56,.3)}
+
+  /* cards */
+  .card{
+    background:linear-gradient(180deg,#fff,#fffdf8);
+    border:1px solid var(--line);border-radius:18px;padding:18px;
+    box-shadow:0 1px 2px rgba(80,40,10,.05), 0 10px 30px -18px rgba(80,40,10,.25);
+    animation:rise .45s cubic-bezier(.2,.7,.3,1) both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .winecard{position:relative;overflow:hidden}
+  .winecard:before{content:"";position:absolute;left:0;top:0;height:4px;width:100%;
+    background:linear-gradient(90deg,var(--gold),var(--gold-bright),var(--gold))}
+  .winebadge{box-shadow:0 4px 14px -4px rgba(0,0,0,.5), inset 0 0 14px rgba(201,162,75,.2);font-family:'Fraunces',serif}
+  label.fld{font-weight:600;color:#b29b6f;letter-spacing:.6px}
+
+  /* buttons */
+  button.btn{
+    background:linear-gradient(165deg,var(--wine),var(--wine-deep));
+    border-radius:14px;font-weight:600;letter-spacing:.3px;
+    box-shadow:0 8px 20px -10px rgba(125,36,56,.7);transition:transform .12s, box-shadow .12s;
+  }
+  button.btn:hover{box-shadow:0 12px 26px -10px rgba(125,36,56,.8)}
+  button.btn:active{transform:translateY(2px) scale(.99)}
+  button.btn.gold{background:linear-gradient(165deg,var(--gold-bright),var(--gold));color:#3a2a08;box-shadow:0 8px 22px -10px rgba(201,162,75,.85)}
+  button.btn.ghost{background:rgba(255,255,255,.85);box-shadow:none}
+
+  /* score segments */
+  .seg button{border-radius:10px;font-weight:600;transition:.12s;font-family:'Inter',sans-serif}
+  .seg button:hover{border-color:var(--gold)}
+  .seg button.sel{background:linear-gradient(165deg,var(--wine),var(--wine-deep));border-color:var(--wine-deep);color:#fff;transform:translateY(-2px);box-shadow:0 6px 14px -6px rgba(125,36,56,.7)}
+
+  /* blend sliders */
+  .grow .lbl{font-weight:600;color:#5a4a36}
+  .grow input[type=range]{height:8px;border-radius:6px;background:linear-gradient(90deg,#eadfc8,#e2d4b6)}
+  .grow input[type=range]::-webkit-slider-thumb{width:24px;height:24px;border:3px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.25), 0 0 0 4px rgba(201,162,75,.12)}
+  .grow .pct{font-family:'Fraunces',serif;font-weight:600;color:var(--wine)}
+  .blendbar{height:18px;border-radius:10px;box-shadow:inset 0 1px 3px rgba(0,0,0,.12)}
+  .blendbar i{transition:width .12s ease}
+
+  /* rank list */
+  ol.ranklist li{border-radius:14px;box-shadow:0 6px 16px -12px rgba(80,40,10,.4);transition:.15s}
+  ol.ranklist li .pos{background:linear-gradient(160deg,var(--wine),var(--wine-deep));font-family:'Fraunces',serif;box-shadow:0 3px 8px -3px rgba(125,36,56,.7)}
+  ol.ranklist li .handle{color:var(--gold)}
+
+  /* banner / pills */
+  .banner{background:linear-gradient(180deg,#fbf2da,#f6ead0);border-color:var(--gold-soft);border-radius:14px;font-weight:500}
+  .pill{background:#f4e9d2;font-weight:600}
+
+  /* results & awards */
+  .resultrow{border-radius:16px;box-shadow:0 8px 22px -16px rgba(80,40,10,.4)}
+  .resultrow.win{background:
+      radial-gradient(120% 140% at 0% 0%, #fff7e4 0%, #fff 55%);
+    border-color:var(--gold);box-shadow:0 14px 34px -16px rgba(201,162,75,.6);position:relative;overflow:hidden}
+  .resultrow.win:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,235,170,.35) 50%,transparent 60%);animation:winsheen 3.2s ease-in-out infinite}
+  @keyframes winsheen{0%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+  .resultrow .rk{font-family:'Fraunces',serif}
+  .award{border-radius:16px;background:linear-gradient(180deg,#fffaf0,#fff);box-shadow:0 8px 20px -16px rgba(201,162,75,.7)}
+  .award .ico{width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(160deg,#fbeec8,#f3e0ad);box-shadow:inset 0 0 10px rgba(201,162,75,.3)}
+  .award .t .ttl{font-weight:700;color:#b29b6f}
+  .award .t .who{font-family:'Fraunces',serif;font-weight:600}
+
+  /* big icon pop */
+  .big-ico{filter:drop-shadow(0 6px 10px rgba(0,0,0,.12));animation:rise .5s both}
+  .toast{border-radius:30px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .modal{border-radius:20px;box-shadow:0 30px 70px -20px rgba(0,0,0,.5)}
 </style>
 </head>
 <body>
@@ -140,7 +252,7 @@ const GRAPES = [
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 //// ---------- STATE ----------
-let EVENT = {id:1,event_name:'Wannabe Winemakers',num_wines:4,wine_start:1,released:false,winemakers:{},wine_names:{},actual_blends:{},funniest:{}};
+let EVENT = {id:1,event_name:'Wannabe Winemakers',num_wines:4,wine_start:1,released:false,winemakers:{},wine_names:{},actual_blends:{},funniest:{},roster:{},wine_library:[]};
 let SCORES = [];   // e79_scores rows
 let SUBS = [];     // e79_submissions rows
 let pollTimer = null;
@@ -215,7 +327,7 @@ async function resetEvent(){
 }
 
 //// ---------- SCORING ----------
-function tasterName(n){const s=SUBS.find(x=>x.taster===n);return (s&&s.taster_name)?s.taster_name:('Taster '+n);}
+function tasterName(n){const s=SUBS.find(x=>x.taster===n);if(s&&s.taster_name)return s.taster_name;const rn=rosterName(n);return rn||('Taster '+n);}
 function myScores(n){return SCORES.filter(s=>s.taster===n);}
 function mySub(n){return SUBS.find(s=>s.taster===n);}
 // suggested order best->worst by overall (+ slight comment-length tiebreak)
@@ -322,6 +434,14 @@ function wineNicknames(wine){
   return out;
 }
 function winemakerOf(w){return (EVENT.winemakers&&EVENT.winemakers[w])||'';}
+// ----- roster (named, pre-seeded tasters) -----
+function getRoster(){return EVENT.roster||{};}
+function rosterEntry(n){return getRoster()[n]||getRoster()[String(n)]||null;}
+function rosterName(n){const e=rosterEntry(n);return (e&&e.name)?e.name:'';}
+function isActive(n){const e=rosterEntry(n);return e?(e.active!==false):false;}
+function activeTasters(){const r=getRoster();return Object.keys(r).map(k=>parseInt(k,10)).filter(n=>{const e=r[n]||r[String(n)];return e&&e.name&&e.active!==false;}).sort((a,b)=>a-b);}
+function activeCount(){return activeTasters().length;}
+function submittedActive(){return SUBS.filter(s=>s.submitted&&isActive(s.taster)).length;}
 
 //// ---------- ROUTER ----------
 function startPoll(fn,ms){stopPoll();pollTimer=setInterval(fn,ms);}
@@ -346,16 +466,21 @@ function navTabs(active,extra){
 }
 function renderHome(){
   $('hdrRole').textContent='';
+  const act=activeTasters();
   let taster='';
-  for(let i=1;i<=NUM_TASTERS;i++) taster+=`<button class="btn ghost" onclick="location.hash='t=${i}'">I'm Taster ${i}</button>`;
+  if(act.length){
+    act.forEach(i=>taster+=`<button class="btn ghost" onclick="location.hash='t=${i}'">I'm ${esc(rosterName(i))}</button>`);
+  } else {
+    for(let i=1;i<=NUM_TASTERS;i++) taster+=`<button class="btn ghost" onclick="location.hash='t=${i}'">I'm Taster ${i}</button>`;
+  }
   app.innerHTML=`
     ${navTabs('home')}
     <div class="banner">${esc(EVENT.event_name)} · ${EVENT.num_wines} custom blends</div>
     <div class="card center">
       <div class="big-ico">&#129346;&#127863;</div>
       <h2>Who poured the best?</h2>
-      <p class="muted">${NUM_TASTERS} wannabe winemakers. Same three grapes — Cab Sauv, Cab Franc, Petit Verdot — wildly different blends. Taste blind, score, guess the blend, crown a champion.</p>
-      <p class="muted">Pick your taster number to begin. Each guest uses their own link.</p>
+      <p class="muted">Same three grapes — Cab Sauv, Cab Franc, Petit Verdot — wildly different blends. Taste blind, score, guess the blend, crown a champion.</p>
+      <p class="muted">Tap your name to begin. Each guest has their own link / QR.</p>
       ${taster}
     </div>
     <div class="card center">
@@ -382,11 +507,19 @@ function renderRules(){
 }
 
 //// ----- SETUP -----
+function libArr(){return Array.isArray(EVENT.wine_library)?EVENT.wine_library:[];}
+function libOptions(selMaker){
+  return '<option value="">— assign a bottle —</option>'+libArr().map((w,idx)=>
+    `<option value="${idx}" ${selMaker&&selMaker===w.maker?'selected':''}>${esc(w.maker)}${w.cab!=null?` · ${w.cab}/${w.franc}/${w.pv}`:' · blend?'}</option>`).join('');
+}
 function renderSetup(){
   let wineRows='';
   wineList().forEach(i=>{
     const b=(EVENT.actual_blends&&EVENT.actual_blends[i])||{};
-    wineRows+=`<div class="card"><h3><span class="winebadge">${i}</span> Wine ${i}</h3>
+    const selStyle='width:100%;font-family:inherit;font-size:16px;padding:11px;border:1px solid var(--gold);border-radius:8px;background:#fffdf6;color:var(--ink);font-weight:600';
+    wineRows+=`<div class="card"><h3><span class="winebadge">${i}</span> Wine ${i} <span class="muted" style="font-size:13px">(blind bag ${i})</span></h3>
+      <label class="fld">Assign this blind bag → winemaker (auto-fills blend)</label>
+      <select id="as${i}" onchange="assignWine(${i})" style="${selStyle}">${libOptions(winemakerOf(i))}</select>
       <label class="fld">Winemaker (revealed at the end)</label>
       <input type="text" id="mk${i}" value="${esc(winemakerOf(i))}" placeholder="e.g. Rachael">
       <label class="fld">Wine label / name (optional)</label>
@@ -399,6 +532,14 @@ function renderSetup(){
       </div></div>`;
   });
   const _wl=wineList(),_rng=_wl.length?`bags ${_wl[0]}–${_wl[_wl.length-1]}`:'';
+  let rosterInputs='';
+  for(let i=1;i<=NUM_TASTERS;i++){
+    const e=rosterEntry(i),nm=e&&e.name?e.name:'';
+    rosterInputs+=`<div style="display:flex;gap:8px;align-items:center;margin:6px 0">
+      <span class="pill">T${i}</span>
+      <input type="text" id="rs${i}" value="${esc(nm)}" placeholder="(empty = unused)" style="flex:1">
+    </div>`;
+  }
   app.innerHTML=`
     ${navTabs('setup')}
     <h2>Event Setup</h2>
@@ -412,10 +553,20 @@ function renderSetup(){
       <p class="muted" style="margin-top:6px">Wines will be labeled <b>${_rng}</b> to match your bags.</p>
       <button class="btn gold" id="saveBasics">Save &amp; refresh</button>
     </div>
-    <h3>Winemakers &amp; actual blends</h3>
-    <p class="muted">Fill the actual blend % so the app can crown the best blend-guesser. Reveal winemaker names at the end. You can do this before or after pouring.</p>
+    <h3>The four blends <span class="muted">(reference)</span></h3>
+    <div class="card"><p class="muted">These are the bottles in play. Below, assign each one to a blind bag, then Save.</p>
+      ${libArr().map(w=>`<div class="guessrow"><span class="pill">${esc(w.maker)}</span><span class="g">${w.cab!=null?`${w.cab}% Cab Sauv · ${w.franc}% Cab Franc · ${w.pv}% Petit Verdot`:'<i>blend not on label — enter manually</i>'}${w.appellation?` <span class="muted">(${esc(w.appellation)})</span>`:''}</span></div>`).join('')}
+    </div>
+    <h3>Assign blind bags &amp; blends</h3>
+    <p class="muted">For each blind bag, pick which winemaker it is — the blend auto-fills. Do this any time before you release results. Then hit Save.</p>
     ${wineRows}
-    <button class="btn" id="saveWines">Save winemakers &amp; blends</button>
+    <button class="btn" id="saveWines">Save assignments &amp; blends</button>
+    <h3>Guest roster</h3>
+    <div class="card">
+      <p class="muted">Name each taster slot. The matching QR / link logs that person in by name (no typing). Leave a slot blank to skip it. Remove a no-show from the Host panel.</p>
+      ${rosterInputs}
+      <button class="btn gold" id="saveRoster">Save roster</button>
+    </div>
     <div class="card"><h3>Share the links</h3>
       <p class="muted">Send each guest their own taster link. Keep the host link for yourself.</p>${linkRows()}</div>
     <button class="btn ghost" onclick="location.hash='view=host'">Go to Host Control &rarr;</button>`;
@@ -435,10 +586,27 @@ function renderSetup(){
     });
     await setEvent({winemakers:mk,wine_names:wn,actual_blends:ab});toast('Saved');
   };
+  window.assignWine=(i)=>{
+    const v=$('as'+i).value; if(v==='')return;
+    const w=libArr()[parseInt(v,10)]; if(!w)return;
+    $('mk'+i).value=w.maker||''; $('wn'+i).value=w.maker||'';
+    $('ab_cab'+i).value=(w.cab??''); $('ab_franc'+i).value=(w.franc??''); $('ab_pv'+i).value=(w.pv??'');
+    toast('Assigned '+(w.maker||'')+' to bag '+i+' — tap Save');
+  };
+  $('saveRoster').onclick=async()=>{
+    const roster={},prev=getRoster();
+    for(let i=1;i<=NUM_TASTERS;i++){
+      const v=$('rs'+i).value.trim();
+      if(v){const was=prev[i]||prev[String(i)];roster[i]={name:v,active:was?was.active!==false:true};}
+    }
+    await setEvent({roster});toast('Roster saved');renderSetup();
+  };
 }
 function linkRows(){
   let h='';
-  for(let i=1;i<=NUM_TASTERS;i++){const u=baseUrl()+'#t='+i;h+=`<div class="copybox"><span class="pill">T${i}</span><input type="text" readonly value="${u}"><button onclick="copyVal(this)">Copy</button></div>`;}
+  const act=activeTasters();
+  const slots=act.length?act:Array.from({length:NUM_TASTERS},(_,i)=>i+1);
+  slots.forEach(i=>{const u=baseUrl()+'#t='+i;const lbl=rosterName(i)||('T'+i);h+=`<div class="copybox"><span class="pill">${esc(lbl)}</span><input type="text" readonly value="${u}"><button onclick="copyVal(this)">Copy</button></div>`;});
   h+=`<div class="copybox"><span class="pill" style="background:var(--wine);color:#fff">HOST</span><input type="text" readonly value="${baseUrl()+'#view=host'}"><button onclick="copyVal(this)">Copy</button></div>`;
   h+=`<div class="copybox"><span class="pill" style="background:var(--gold);color:#3a2e10">RESULTS</span><input type="text" readonly value="${baseUrl()+'#view=results'}"><button onclick="copyVal(this)">Copy</button></div>`;
   return h;
@@ -448,10 +616,21 @@ function copyVal(btn){const inp=btn.previousElementSibling;inp.select();inp.setS
 //// ----- TASTER -----
 async function renderTaster(n){
   $('hdrRole').textContent='TASTER '+n;
-  const sub=mySub(n);
+  let sub=mySub(n);
+  const rn=rosterName(n);
+  // removed from the roster?
+  if(rosterEntry(n)&&!isActive(n)){
+    app.innerHTML=`${navTabs('home')}<div class="card center"><div class="big-ico">&#128683;</div><h2>Not in this tasting</h2><p class="muted">This spot isn't active for tonight's throwdown. Check with the host if you think that's a mistake.</p></div>`;
+    return;
+  }
   if(sub&&sub.submitted){
     if(EVENT.released){renderResults(n);return;}
     renderWaiting(n);startPoll(async()=>{await loadAll();if(EVENT.released){stopPoll();renderResults(n);}},6000);return;
+  }
+  // pre-named via roster → skip the name prompt
+  if(rn){
+    if(!sub||sub.taster_name!==rn){sub=await saveSubmission(n,{taster_name:rn,submitted:(sub&&sub.submitted)||false});}
+    renderScoreStep(n);return;
   }
   if(!sub||!sub.taster_name){renderNamePrompt(n);return;}
   renderScoreStep(n);
@@ -479,7 +658,7 @@ function blendHTML(wine,r){
     const v=(r['guess_'+g.key]!=null)?r['guess_'+g.key]:33;
     rows+=`<div class="grow">
       <span class="lbl"><span class="sw" style="background:${g.color}"></span>${g.name.split(' ')[0]} ${g.name.split(' ')[1]||''}</span>
-      <input type="range" min="0" max="100" value="${v}" id="bl_${wine}_${g.key}" oninput="blendInput(${wine})" onchange="blendSave(${wine})">
+      <input type="range" min="0" max="100" value="${v}" id="bl_${wine}_${g.key}" oninput="blendInput(${wine},'${g.key}')" onchange="blendSave(${wine})">
       <span class="pct" id="pc_${wine}_${g.key}">${v}%</span>
     </div>`;
   });
@@ -532,7 +711,24 @@ function updateBlendUI(w){
   const tot=$('tot_'+w);
   if(tot){tot.textContent='Total: '+t+'%'+(t===100?' ✓':' (will be scaled to 100%)');tot.className='blendtot '+(t===100?'ok':'off');}
 }
-function blendInput(w){updateBlendUI(w);}
+function blendInput(w,changedKey){
+  // keep the three grapes summing to <=100: if a slider pushes total over 100,
+  // pull the other two down equally (clamped at 0, remainder rolls to whichever still has room).
+  const o=readBlend(w);
+  let total=o.cab+o.franc+o.pv;
+  if(changedKey&&total>100){
+    let excess=total-100;
+    const others=GRAPES.map(g=>g.key).filter(k=>k!==changedKey);
+    const half=excess/2;
+    let r0=Math.min(o[others[0]],half), r1=Math.min(o[others[1]],half);
+    o[others[0]]-=r0; o[others[1]]-=r1;
+    let remaining=excess-r0-r1;
+    if(remaining>0){const t0=Math.min(o[others[0]],remaining);o[others[0]]-=t0;remaining-=t0;}
+    if(remaining>0){const t1=Math.min(o[others[1]],remaining);o[others[1]]-=t1;remaining-=t1;}
+    others.forEach(k=>{o[k]=Math.max(0,Math.round(o[k]));const el=$('bl_'+w+'_'+k);if(el)el.value=o[k];});
+  }
+  updateBlendUI(w);
+}
 function blendSave(w){const o=readBlend(w);saveScore(window._taster,w,{guess_cab:o.cab,guess_franc:o.franc,guess_pv:o.pv}).then(flashSaved);}
 function flashSaved(){const e=$('saveind');if(e){e.textContent='✓ saved';clearTimeout(e._t);e._t=setTimeout(()=>e.textContent=' ',1200);}}
 
@@ -562,29 +758,42 @@ function renderRankStep(n){
   };
 }
 function renderWaiting(n){
-  const done=SUBS.filter(s=>s.submitted).length;
+  const done=submittedActive(),tot=activeCount()||NUM_TASTERS;
   app.innerHTML=`
     ${navTabs('home')}
     <div class="card center"><div class="big-ico">&#9203;</div><h2>You're locked in</h2>
       <p class="muted">Thanks, ${esc(tasterName(n))} — your card is submitted.</p>
-      <div class="banner">${done} of ${NUM_TASTERS} tasters submitted</div>
+      <div class="banner">${done} of ${tot} tasters submitted</div>
       <p class="muted">Results &amp; awards appear here the moment the host releases them.</p></div>`;
 }
 
 //// ----- HOST -----
 function renderHost(isRefresh){
   const sy=window.scrollY;
-  const done=SUBS.filter(s=>s.submitted).length;
+  const act=activeTasters();
+  const done=submittedActive(),tot=activeCount()||NUM_TASTERS;
   const _wl=wineList(),_rng=_wl.length?`bags ${_wl[0]}–${_wl[_wl.length-1]}`:'';
-  // score matrix
+  // score matrix (active tasters)
   let head='<tr><th>Taster</th>';wineList().forEach(w=>head+=`<th>W${w}</th>`);head+='<th>Done</th></tr>';
   let body='';
-  for(let t=1;t<=NUM_TASTERS;t++){
-    const sub=SUBS.find(s=>s.taster===t);if(!sub||!sub.taster_name)continue;
+  const rows4matrix=act.length?act:Array.from({length:NUM_TASTERS},(_,i)=>i+1).filter(t=>{const s=SUBS.find(x=>x.taster===t);return s&&s.taster_name;});
+  rows4matrix.forEach(t=>{
+    const sub=SUBS.find(s=>s.taster===t);
     body+=`<tr><td class="wn">${esc(tasterName(t))}</td>`;
     wineList().forEach(w=>{const r=SCORES.find(s=>s.taster===t&&s.wine===w);body+=`<td>${r&&r.overall!=null?r.overall:'·'}</td>`;});
     body+=`<td>${sub&&sub.submitted?'✅':'…'}</td></tr>`;
-  }
+  });
+  // roster editor
+  const rkeys=Object.keys(getRoster()).map(k=>parseInt(k,10)).sort((a,b)=>a-b);
+  let rosterSec=rkeys.length?'':'<div class="muted" style="font-size:14px">No roster set. Use Event Setup to add guests.</div>';
+  rkeys.forEach(n=>{
+    const e=rosterEntry(n),on=e.active!==false,sub=SUBS.find(s=>s.taster===n);
+    rosterSec+=`<div class="guessrow" style="${on?'':'opacity:.55'}">
+      <span class="pill">T${n}</span>
+      <span class="g">${esc(e.name||('Taster '+n))}${sub&&sub.submitted?' ✅':''}</span>
+      <button class="btn ${on?'ghost':'gold'}" style="width:auto;margin:0;padding:6px 12px;font-size:13px;${on?'color:var(--bad);border-color:var(--bad)':''}" onclick="toggleTaster(${n},${on?'false':'true'})">${on?'Remove':'Restore'}</button>
+    </div>`;
+  });
   // comments to pick funniest
   let cmtSec='';
   wineList().forEach(w=>{
@@ -600,7 +809,7 @@ function renderHost(isRefresh){
   app.innerHTML=`
     ${navTabs('host',`<button onclick="location.hash='view=setup'">Setup</button><button onclick="location.hash='view=results'">Results</button>`)}
     <h2>Host Control</h2>
-    <div class="banner"><b>${done} / ${NUM_TASTERS}</b> submitted · ${EVENT.released?'<span style="color:var(--good)">RESULTS RELEASED</span>':'results hidden'}</div>
+    <div class="banner"><b>${done} / ${tot}</b> submitted · ${EVENT.released?'<span style="color:var(--good)">RESULTS RELEASED</span>':'results hidden'}</div>
     <div class="card center">
       ${EVENT.released?`<p class="muted">Tasters can see results &amp; awards.</p><button class="btn ghost" id="hideBtn">Hide results again</button>`
         :`<p class="muted">Set the actual blends in Setup first, then reveal.</p><button class="btn gold" id="releaseBtn">🍷 Release Results</button>`}
@@ -616,6 +825,8 @@ function renderHost(isRefresh){
       </div>
       <p class="muted" style="margin-top:6px">Wines labeled <b>${_rng}</b>. Set winemakers &amp; actual blends in <b>Setup</b>.</p>
     </div>
+    <h3>Tasters <span class="muted">(remove anyone who can't make it)</span></h3>
+    <div class="card">${rosterSec}<p class="muted" style="font-size:13px;margin-top:8px">Removed guests disappear from the count and the home screen, and their QR shows "not in this tasting." Restore anytime. Add or rename guests in <b>Setup</b>.</p></div>
     <h3>Live scores <span class="muted">(overall, auto-refresh)</span></h3>
     <div class="card" style="overflow-x:auto"><table class="grid">${head}${body||'<tr><td>No tasters yet</td></tr>'}</table></div>
     <h3>Comments — pick the funniest ★</h3>
@@ -633,6 +844,13 @@ function renderHost(isRefresh){
 async function pickFunny(t,w){
   const on=EVENT.funniest&&EVENT.funniest.taster===t&&EVENT.funniest.wine===w;
   await setEvent({funniest:on?{}:{taster:t,wine:w}});await loadAll();renderHost(true);
+}
+async function toggleTaster(n,active){
+  const roster=JSON.parse(JSON.stringify(getRoster()));
+  const key=roster[n]?n:String(n);
+  if(!roster[key])roster[key]={name:'Taster '+n};
+  roster[key].active=active;
+  await setEvent({roster});await loadAll();renderHost(true);
 }
 
 //// ----- RESULTS / DEBRIEF -----
@@ -735,7 +953,7 @@ function renderResults(viewerTaster,isRefresh){
 
 // expose inline handlers
 window.pick=pick;window.commentChange=commentChange;window.nickChange=nickChange;
-window.blendInput=blendInput;window.blendSave=blendSave;window.copyVal=copyVal;window.pickFunny=pickFunny;
+window.blendInput=blendInput;window.blendSave=blendSave;window.copyVal=copyVal;window.pickFunny=pickFunny;window.toggleTaster=toggleTaster;
 
 //// ---------- BOOT ----------
 route();
