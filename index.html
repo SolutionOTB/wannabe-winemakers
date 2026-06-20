@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#15110d">
+<title>Wannabe Winemakers — Custom Blend Throwdown</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<style>
+  :root{
+    --ink:#1c160f; --ink2:#2b2218; --panel:#221b13;
+    --gold:#c9a24b; --gold-bright:#e7c66b; --gold-soft:#efddb0;
+    --cream:#faf4e6; --paper:#fffdf7; --muted:#9a8a72; --line:#e7dcc3;
+    --wine:#6b1f2e; --wine-deep:#4d1620;
+    --cab:#5b2a6e; --franc:#b23b3b; --pv:#2f3e8c;
+    --good:#2e7d4f; --bad:#b23b3b; --card:#ffffff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:Georgia,'Times New Roman',serif;background:var(--cream);color:var(--ink);line-height:1.45;font-size:17px}
+  .wrap{max-width:580px;margin:0 auto;padding:0 16px 90px}
+  header.app{
+    background:radial-gradient(120% 140% at 50% -20%, #2c2316 0%, var(--ink) 70%);
+    color:#fff;text-align:center;padding:16px 16px 14px;position:sticky;top:0;z-index:20;
+    box-shadow:0 2px 16px rgba(0,0,0,.35);border-bottom:1px solid #3a2f1d
+  }
+  .autile{
+    display:inline-block;border:2px solid var(--gold);border-radius:10px;padding:6px 12px 7px;
+    background:linear-gradient(160deg,#2e2415,#1a140d);box-shadow:0 0 0 2px rgba(201,162,75,.15), inset 0 0 18px rgba(201,162,75,.12);
+    position:relative;line-height:1
+  }
+  .autile .num{position:absolute;top:3px;left:7px;font-size:10px;color:var(--gold-soft)}
+  .autile .mass{position:absolute;top:3px;right:7px;font-size:8px;color:var(--gold-soft)}
+  .autile .sym{font-size:34px;font-style:italic;font-weight:bold;color:var(--gold-bright);letter-spacing:1px}
+  .autile .el{font-size:9px;letter-spacing:3px;color:var(--gold-soft);margin-top:2px;text-transform:uppercase}
+  header.app .name{letter-spacing:5px;font-size:19px;margin-top:9px;color:#fff}
+  header.app .sub{letter-spacing:3px;font-size:10px;color:var(--gold-soft);margin-top:3px;text-transform:uppercase}
+  header.app .role{font-size:12px;color:var(--gold-soft);margin-top:6px;letter-spacing:1px}
+  h1,h2,h3{font-weight:normal}
+  h2{color:var(--wine);font-size:24px;margin:18px 0 6px}
+  h3{color:var(--wine);font-size:19px;margin:16px 0 4px}
+  .muted{color:var(--muted);font-size:14px}
+  nav.tabs{display:flex;gap:6px;justify-content:center;margin:14px 0 6px;flex-wrap:wrap}
+  nav.tabs button{font-family:inherit;font-size:13px;letter-spacing:1px;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:#fff;color:var(--wine);cursor:pointer}
+  nav.tabs button.active{background:var(--wine);color:#fff;border-color:var(--wine)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;box-shadow:0 1px 6px rgba(60,40,10,.06)}
+  .winecard h3{margin-top:0;display:flex;align-items:center;gap:8px}
+  .winebadge{background:linear-gradient(160deg,#2e2415,#1a140d);border:1.5px solid var(--gold);color:var(--gold-bright);border-radius:10px;min-width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;font-style:italic}
+  label.fld{display:block;font-size:13px;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin:16px 0 6px}
+  .seg{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+  .seg button{font-family:inherit;font-size:15px;padding:11px 0;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;color:var(--ink)}
+  .seg button.sel{background:var(--wine);border-color:var(--wine);color:#fff;font-weight:bold}
+  textarea,input[type=text]{width:100%;font-family:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  textarea{min-height:64px;resize:vertical}
+  button.btn{font-family:inherit;font-size:17px;letter-spacing:1px;background:var(--wine);color:#fff;border:none;border-radius:10px;padding:14px 18px;width:100%;cursor:pointer;margin-top:8px}
+  button.btn.gold{background:linear-gradient(160deg,var(--gold-bright),var(--gold));color:#3a2e10;font-weight:bold}
+  button.btn.ghost{background:#fff;color:var(--wine);border:1px solid var(--wine)}
+  button.btn:disabled{opacity:.5}
+  .saveind{font-size:12px;color:var(--good);height:14px;text-align:right;letter-spacing:.5px}
+  ul.rules{list-style:none;padding:0;margin:8px 0}
+  ul.rules li{position:relative;padding:8px 8px 8px 30px;border-bottom:1px dashed var(--line)}
+  ul.rules li:before{content:"\1F377";position:absolute;left:0;top:7px}
+  /* blend guess */
+  .blend{margin-top:6px}
+  .grow{display:flex;align-items:center;gap:10px;margin:12px 0}
+  .grow .lbl{flex:0 0 116px;font-size:14px}
+  .grow .lbl .sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .grow input[type=range]{flex:1;-webkit-appearance:none;height:6px;border-radius:4px;background:#eadfc8;outline:none}
+  .grow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--gold);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .grow .pct{flex:0 0 48px;text-align:right;font-size:16px;font-style:italic;color:var(--wine)}
+  .blendtot{font-size:13px;text-align:right;margin-top:2px;letter-spacing:.5px}
+  .blendtot.ok{color:var(--good)} .blendtot.off{color:var(--bad)}
+  .blendbar{height:14px;border-radius:7px;overflow:hidden;display:flex;border:1px solid var(--line);margin-top:8px;background:#f0e8d6}
+  .blendbar i{display:block;height:100%}
+  ol.ranklist{list-style:none;margin:10px 0;padding:0}
+  ol.ranklist li{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0;touch-action:none}
+  ol.ranklist li .pos{background:var(--wine);color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 auto}
+  ol.ranklist li .nm{flex:1}
+  ol.ranklist li .handle{color:var(--gold);font-size:22px;cursor:grab;padding:0 4px}
+  ol.ranklist li.sortable-ghost{opacity:.4}
+  ol.ranklist li.sortable-chosen{box-shadow:0 4px 14px rgba(0,0,0,.18);border-color:var(--gold)}
+  table.grid{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+  table.grid th,table.grid td{border:1px solid var(--line);padding:7px;text-align:center}
+  table.grid th{background:var(--wine);color:#fff;font-weight:normal;font-size:12px}
+  table.grid td.wn{background:#f6efe0;font-style:italic}
+  .pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:10px;background:#f0e8d6;color:var(--wine);letter-spacing:.5px}
+  .resultrow{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;margin:8px 0;background:#fff}
+  .resultrow .rk{font-size:26px;width:40px;text-align:center}
+  .resultrow.win{border-color:var(--gold);background:linear-gradient(120deg,#fffaf0,#fff);box-shadow:0 2px 12px rgba(201,162,75,.3)}
+  .resultrow .meta{flex:1}
+  .resultrow .score{font-size:22px;color:var(--wine);font-style:italic}
+  .award{display:flex;gap:12px;align-items:center;border:1px solid var(--gold-soft);background:linear-gradient(120deg,#fffaf0,#fff);border-radius:12px;padding:12px;margin:8px 0}
+  .award .ico{font-size:30px;flex:0 0 auto}
+  .award .t{flex:1}
+  .award .t .ttl{font-size:12px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+  .award .t .who{font-size:18px;color:var(--wine)}
+  .guessrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:15px}
+  .guessrow .g{flex:1}
+  .note{background:#f9f4ea;border-left:3px solid var(--gold);padding:8px 10px;border-radius:6px;font-style:italic;margin:6px 0;font-size:14px}
+  .center{text-align:center}
+  .big-ico{font-size:54px;text-align:center;margin:10px 0}
+  .copybox{display:flex;gap:6px;align-items:center;margin:6px 0;font-size:13px}
+  .copybox input{flex:1;font-size:12px;padding:7px}
+  .copybox button{flex:0 0 auto;font-family:inherit;background:var(--wine);color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer}
+  .banner{background:#f0e8d6;border:1px solid var(--gold-soft);border-radius:10px;padding:12px;text-align:center;color:var(--wine);margin:12px 0}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:24px;font-size:14px;opacity:0;transition:opacity .25s;z-index:50;pointer-events:none}
+  .toast.show{opacity:.96}
+  .overlay{position:fixed;inset:0;background:rgba(20,12,8,.65);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+  .overlay.show{display:flex}
+  .modal{background:#fff;border-radius:16px;padding:22px;max-width:380px;width:100%;text-align:center}
+  .modal h3{margin-top:0}
+  .modal .row{display:flex;gap:10px;margin-top:16px}
+  .modal .row button{flex:1}
+  .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="autile"><span class="num">79</span><span class="mass">Au</span><span class="sym">Au</span><div class="el">Gold</div></div>
+  <div class="name">WANNABE WINEMAKERS</div>
+  <div class="sub" id="hdrSub">Custom Blend Throwdown</div>
+  <div class="role" id="hdrRole"></div>
+</header>
+<div class="wrap" id="app"></div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+//// ---------- CONFIG ----------
+const SUPABASE_URL = 'https://pytbtuzeeguqgrhszmpr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Szeto_ZZUnpZipwMv1VE0A_wyo3RMQp';
+const NUM_TASTERS = 12;            // covers 10-11 guests, with spares
+const GRAPES = [
+  {key:'cab',   name:'Cabernet Sauvignon', color:'var(--cab)'},
+  {key:'franc', name:'Cabernet Franc',     color:'var(--franc)'},
+  {key:'pv',    name:'Petit Verdot',       color:'var(--pv)'}
+];
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+//// ---------- STATE ----------
+let EVENT = {id:1,event_name:'Wannabe Winemakers',num_wines:4,wine_start:1,released:false,winemakers:{},wine_names:{},actual_blends:{},funniest:{}};
+let SCORES = [];   // e79_scores rows
+let SUBS = [];     // e79_submissions rows
+let pollTimer = null;
+
+//// ---------- HELPERS ----------
+const $ = (id)=>document.getElementById(id);
+const app = $('app');
+const esc = (s)=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
+function baseUrl(){return location.origin+location.pathname;}
+function wineList(){const s=parseInt(EVENT.wine_start,10)||1;const a=[];for(let i=0;i<EVENT.num_wines;i++)a.push(s+i);return a;}
+function hashParams(){const h=location.hash.replace(/^#/,'');const p={};h.split('&').forEach(kv=>{const[a,b]=kv.split('=');if(a)p[a]=decodeURIComponent(b||'');});return p;}
+function confirmModal(title,body,okLabel,onOk){
+  const m=$('modal');
+  m.innerHTML=`<h3>${esc(title)}</h3><p class="muted">${body}</p>
+    <div class="row"><button class="btn ghost" id="mNo">Cancel</button><button class="btn gold" id="mYes">${esc(okLabel)}</button></div>`;
+  $('overlay').classList.add('show');
+  $('mNo').onclick=()=>$('overlay').classList.remove('show');
+  $('mYes').onclick=()=>{$('overlay').classList.remove('show');onOk();};
+}
+
+//// ---------- DATA ----------
+async function loadAll(){
+  const [ev,sc,su]=await Promise.all([
+    sb.from('e79_event').select('*').eq('id',1).maybeSingle(),
+    sb.from('e79_scores').select('*'),
+    sb.from('e79_submissions').select('*')
+  ]);
+  if(ev.data) EVENT=ev.data;
+  if(sc.data) SCORES=sc.data;
+  if(su.data) SUBS=su.data;
+}
+async function saveScore(taster,wine,patch){
+  const ex=SCORES.find(s=>s.taster===taster&&s.wine===wine)||{};
+  const row={taster,wine,
+    overall:patch.overall!==undefined?patch.overall:(ex.overall??null),
+    comment:patch.comment!==undefined?patch.comment:(ex.comment??''),
+    nickname:patch.nickname!==undefined?patch.nickname:(ex.nickname??''),
+    guess_cab:patch.guess_cab!==undefined?patch.guess_cab:(ex.guess_cab??null),
+    guess_franc:patch.guess_franc!==undefined?patch.guess_franc:(ex.guess_franc??null),
+    guess_pv:patch.guess_pv!==undefined?patch.guess_pv:(ex.guess_pv??null),
+    updated_at:new Date().toISOString()};
+  const {data,error}=await sb.from('e79_scores').upsert(row,{onConflict:'taster,wine'}).select().maybeSingle();
+  if(error){console.error(error);toast('Save failed — check connection');return;}
+  const i=SCORES.findIndex(s=>s.taster===taster&&s.wine===wine);
+  if(i>=0)SCORES[i]=data;else SCORES.push(data);
+}
+async function saveSubmission(taster,patch){
+  const ex=SUBS.find(s=>s.taster===taster)||{};
+  const row={taster,
+    taster_name:patch.taster_name!==undefined?patch.taster_name:(ex.taster_name??''),
+    rank_order:patch.rank_order!==undefined?patch.rank_order:(ex.rank_order??[]),
+    submitted:patch.submitted!==undefined?patch.submitted:(ex.submitted??false),
+    updated_at:new Date().toISOString()};
+  const {data,error}=await sb.from('e79_submissions').upsert(row,{onConflict:'taster'}).select().maybeSingle();
+  if(error){console.error(error);toast('Save failed');return null;}
+  const i=SUBS.findIndex(s=>s.taster===taster);
+  if(i>=0)SUBS[i]=data;else SUBS.push(data);
+  return data;
+}
+async function setEvent(patch){
+  const row={id:1,...patch,updated_at:new Date().toISOString()};
+  const {data,error}=await sb.from('e79_event').upsert(row,{onConflict:'id'}).select().maybeSingle();
+  if(error){console.error(error);toast('Save failed');return;}
+  EVENT=data;
+}
+async function resetEvent(){
+  await sb.from('e79_scores').delete().gte('taster',0);
+  await sb.from('e79_submissions').update({submitted:false,rank_order:[],updated_at:new Date().toISOString()}).gte('taster',0);
+  await setEvent({released:false});
+  await loadAll(); toast('Cleared — fresh round ready 🍷'); renderHost();
+}
+
+//// ---------- SCORING ----------
+function tasterName(n){const s=SUBS.find(x=>x.taster===n);return (s&&s.taster_name)?s.taster_name:('Taster '+n);}
+function myScores(n){return SCORES.filter(s=>s.taster===n);}
+function mySub(n){return SUBS.find(s=>s.taster===n);}
+// suggested order best->worst by overall (+ slight comment-length tiebreak)
+function suggestedOrder(ms){
+  const arr=wineList().map(w=>{const r=ms.find(s=>s.wine===w);return {wine:w,rated:r&&r.overall!=null,ov:(r&&r.overall!=null)?r.overall:-1};});
+  arr.sort((a,b)=>(b.rated-a.rated)||(b.ov-a.ov)||(a.wine-b.wine));
+  return arr.map(x=>x.wine);
+}
+// Borda group results from submitted rankings + avg overall
+function groupResults(){
+  const N=EVENT.num_wines, res={};
+  wineList().forEach(w=>res[w]={wine:w,borda:0,ranksum:0,rankcount:0,osum:0,ocount:0});
+  SCORES.forEach(s=>{const r=res[s.wine];if(!r)return;if(s.overall!=null){r.osum+=s.overall;r.ocount++;}});
+  const submitted=SUBS.filter(x=>x.submitted&&Array.isArray(x.rank_order)&&x.rank_order.length);
+  submitted.forEach(sub=>sub.rank_order.forEach((w,i)=>{const r=res[w];if(!r)return;r.borda+=(N-i);r.ranksum+=(i+1);r.rankcount++;}));
+  const arr=Object.values(res).map(r=>({wine:r.wine,borda:r.borda,avgRank:r.rankcount?r.ranksum/r.rankcount:null,avgOverall:r.ocount?r.osum/r.ocount:null,nvotes:r.ocount}));
+  arr.sort((a,b)=>(b.borda-a.borda)||((b.avgOverall||0)-(a.avgOverall||0))||(a.wine-b.wine));
+  return {ranked:arr, voters:submitted.length};
+}
+// normalize a guess {cab,franc,pv} to sum 100 (so people who don't total 100 aren't punished)
+function normGuess(g){
+  const c=g.guess_cab||0,f=g.guess_franc||0,p=g.guess_pv||0,t=c+f+p;
+  if(t<=0) return null;
+  return {cab:Math.round(c/t*100),franc:Math.round(f/t*100),pv:Math.round(p/t*100)};
+}
+function actualBlend(w){const b=EVENT.actual_blends&&EVENT.actual_blends[w];if(!b)return null;const c=+b.cab||0,f=+b.franc||0,p=+b.pv||0,t=c+f+p;if(t<=0)return null;return {cab:Math.round(c/t*100),franc:Math.round(f/t*100),pv:Math.round(p/t*100)};}
+// blend leaderboard: total absolute error across wines that have an actual blend set; lower = better
+function blendLeaderboard(){
+  const out=[];
+  for(let t=1;t<=NUM_TASTERS;t++){
+    const sub=SUBS.find(s=>s.taster===t); if(!sub||!sub.taster_name) continue;
+    let err=0,counted=0,best=null;
+    wineList().forEach(w=>{
+      const a=actualBlend(w); if(!a) return;
+      const r=SCORES.find(s=>s.taster===t&&s.wine===w); if(!r) return;
+      const g=normGuess(r); if(!g) return;
+      const e=Math.abs(g.cab-a.cab)+Math.abs(g.franc-a.franc)+Math.abs(g.pv-a.pv);
+      err+=e;counted++; if(best==null||e<best.e)best={wine:w,e};
+    });
+    if(counted>0) out.push({taster:t,err,counted,avg:err/counted,best});
+  }
+  out.sort((a,b)=>a.avg-b.avg);
+  return out;
+}
+// per-wine best single blend guess
+function bestBlendGuessForWine(w){
+  const a=actualBlend(w); if(!a) return null;
+  let best=null;
+  SCORES.filter(s=>s.wine===w).forEach(s=>{
+    const g=normGuess(s); if(!g) return;
+    const e=Math.abs(g.cab-a.cab)+Math.abs(g.franc-a.franc)+Math.abs(g.pv-a.pv);
+    if(best==null||e<best.e) best={taster:s.taster,e,g};
+  });
+  return best;
+}
+// how close each taster's ranking matches the group's final ranking (lower = closer)
+function rankCloseness(finalOrder){
+  const posF={}; finalOrder.forEach((w,i)=>posF[w]=i);
+  const out=[];
+  SUBS.filter(s=>s.submitted&&Array.isArray(s.rank_order)&&s.rank_order.length).forEach(s=>{
+    let d=0; s.rank_order.forEach((w,i)=>{if(posF[w]!=null)d+=Math.abs(i-posF[w]);});
+    out.push({taster:s.taster,dist:d});
+  });
+  out.sort((a,b)=>a.dist-b.dist);
+  return out;
+}
+// most similar ranking pairs
+function similarPairs(){
+  const subs=SUBS.filter(s=>s.submitted&&Array.isArray(s.rank_order)&&s.rank_order.length);
+  const pairs=[];
+  for(let i=0;i<subs.length;i++)for(let j=i+1;j<subs.length;j++){
+    const a=subs[i],b=subs[j];const pb={};b.rank_order.forEach((w,k)=>pb[w]=k);
+    let d=0;a.rank_order.forEach((w,k)=>{if(pb[w]!=null)d+=Math.abs(k-pb[w]);});
+    pairs.push({a:a.taster,b:b.taster,dist:d});
+  }
+  pairs.sort((x,y)=>x.dist-y.dist);
+  return pairs;
+}
+// fun: most generous / toughest palate (avg score given)
+function palateStats(){
+  const out=[];
+  for(let t=1;t<=NUM_TASTERS;t++){
+    const sub=SUBS.find(s=>s.taster===t); if(!sub||!sub.taster_name) continue;
+    const rs=SCORES.filter(s=>s.taster===t&&s.overall!=null);
+    if(!rs.length) continue;
+    out.push({taster:t,avg:rs.reduce((a,b)=>a+b.overall,0)/rs.length,n:rs.length});
+  }
+  return out;
+}
+// most divisive wine (highest score spread)
+function divisiveWine(){
+  let best=null;
+  wineList().forEach(w=>{
+    const vs=SCORES.filter(s=>s.wine===w&&s.overall!=null).map(s=>s.overall);
+    if(vs.length<2)return;
+    const mn=Math.min(...vs),mx=Math.max(...vs);
+    if(best==null||(mx-mn)>best.spread)best={wine:w,spread:mx-mn,mn,mx};
+  });
+  return best;
+}
+function wineNicknames(wine){
+  const seen=new Set(),out=[];
+  SCORES.filter(s=>s.wine===wine&&s.nickname&&s.nickname.trim()).forEach(s=>{const v=s.nickname.trim(),k=v.toLowerCase();if(!seen.has(k)){seen.add(k);out.push(v);}});
+  return out;
+}
+function winemakerOf(w){return (EVENT.winemakers&&EVENT.winemakers[w])||'';}
+
+//// ---------- ROUTER ----------
+function startPoll(fn,ms){stopPoll();pollTimer=setInterval(fn,ms);}
+function stopPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null;}}
+async function route(){
+  stopPoll();
+  const p=hashParams();
+  await loadAll();
+  $('hdrSub').textContent=EVENT.event_name||'Custom Blend Throwdown';
+  if(p.view==='rules'){$('hdrRole').textContent='';renderRules();return;}
+  if(p.view==='host'){$('hdrRole').textContent='HOST CONTROL';renderHost();startPoll(async()=>{if(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;await loadAll();renderHost(true);},5000);return;}
+  if(p.view==='setup'){$('hdrRole').textContent='HOST SETUP';renderSetup();return;}
+  if(p.view==='results'){$('hdrRole').textContent='';renderResults(null);startPoll(async()=>{await loadAll();renderResults(null,true);},6000);return;}
+  if(p.t){const n=parseInt(p.t,10);if(n>=1&&n<=NUM_TASTERS){renderTaster(n);return;}}
+  renderHome();
+}
+window.addEventListener('hashchange',route);
+
+//// ---------- VIEWS ----------
+function navTabs(active,extra){
+  return `<nav class="tabs">${extra||''}<button class="${active==='rules'?'active':''}" onclick="location.hash='view=rules'">Rules</button></nav>`;
+}
+function renderHome(){
+  $('hdrRole').textContent='';
+  let taster='';
+  for(let i=1;i<=NUM_TASTERS;i++) taster+=`<button class="btn ghost" onclick="location.hash='t=${i}'">I'm Taster ${i}</button>`;
+  app.innerHTML=`
+    ${navTabs('home')}
+    <div class="banner">${esc(EVENT.event_name)} · ${EVENT.num_wines} custom blends</div>
+    <div class="card center">
+      <div class="big-ico">&#129346;&#127863;</div>
+      <h2>Who poured the best?</h2>
+      <p class="muted">${NUM_TASTERS} wannabe winemakers. Same three grapes — Cab Sauv, Cab Franc, Petit Verdot — wildly different blends. Taste blind, score, guess the blend, crown a champion.</p>
+      <p class="muted">Pick your taster number to begin. Each guest uses their own link.</p>
+      ${taster}
+    </div>
+    <div class="card center">
+      <p class="muted">Running the throwdown?</p>
+      <button class="btn" onclick="location.hash='view=host'">Host Control Panel</button>
+      <button class="btn ghost" onclick="location.hash='view=setup'">Event Setup</button>
+    </div>
+    <div class="foot">Element 79 · Wannabe Winemakers</div>`;
+}
+function renderRules(){
+  app.innerHTML=`
+    ${navTabs('rules')}
+    <h2>House Rules</h2>
+    <div class="card"><ul class="rules">
+      <li>Every blend is bagged &amp; numbered — taste <b>blind</b>, no peeking.</li>
+      <li>Score each wine <b>1–10</b> overall. That's the only score that counts.</li>
+      <li>Drop a <b>comment</b> on each — the funnier the better. There's an award for it. 😏</li>
+      <li>Guess the <b>blend</b>: slide the % of Cab Sauv / Cab Franc / Petit Verdot. They all use those three grapes — just different proportions.</li>
+      <li>When done, drag to <b>rank the wines 1st → last</b>, then submit.</li>
+      <li>Once you submit you're locked in. Results &amp; awards drop when the host releases them.</li>
+      <li>Palate cleanse between pours. Sip, don't gulp. Trash-talk encouraged. 🍷</li>
+    </ul></div>
+    <button class="btn ghost" onclick="history.length>1?history.back():location.hash=''">Back</button>`;
+}
+
+//// ----- SETUP -----
+function renderSetup(){
+  let wineRows='';
+  wineList().forEach(i=>{
+    const b=(EVENT.actual_blends&&EVENT.actual_blends[i])||{};
+    wineRows+=`<div class="card"><h3><span class="winebadge">${i}</span> Wine ${i}</h3>
+      <label class="fld">Winemaker (revealed at the end)</label>
+      <input type="text" id="mk${i}" value="${esc(winemakerOf(i))}" placeholder="e.g. Rachael">
+      <label class="fld">Wine label / name (optional)</label>
+      <input type="text" id="wn${i}" value="${esc((EVENT.wine_names&&EVENT.wine_names[i])||'')}" placeholder="e.g. 30 Special">
+      <label class="fld">Actual blend % — for scoring the blend guesses</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" inputmode="numeric" id="ab_cab${i}" value="${b.cab??''}" placeholder="Cab Sauv">
+        <input type="text" inputmode="numeric" id="ab_franc${i}" value="${b.franc??''}" placeholder="Cab Franc">
+        <input type="text" inputmode="numeric" id="ab_pv${i}" value="${b.pv??''}" placeholder="Petit V">
+      </div></div>`;
+  });
+  const _wl=wineList(),_rng=_wl.length?`bags ${_wl[0]}–${_wl[_wl.length-1]}`:'';
+  app.innerHTML=`
+    ${navTabs('setup')}
+    <h2>Event Setup</h2>
+    <div class="card">
+      <label class="fld">Event name</label>
+      <input type="text" id="evName" value="${esc(EVENT.event_name)}">
+      <label class="fld">Number of wines</label>
+      <input type="text" id="evNum" inputmode="numeric" value="${EVENT.num_wines}">
+      <label class="fld">Starting bag number</label>
+      <input type="text" id="evStart" inputmode="numeric" value="${EVENT.wine_start||1}">
+      <p class="muted" style="margin-top:6px">Wines will be labeled <b>${_rng}</b> to match your bags.</p>
+      <button class="btn gold" id="saveBasics">Save &amp; refresh</button>
+    </div>
+    <h3>Winemakers &amp; actual blends</h3>
+    <p class="muted">Fill the actual blend % so the app can crown the best blend-guesser. Reveal winemaker names at the end. You can do this before or after pouring.</p>
+    ${wineRows}
+    <button class="btn" id="saveWines">Save winemakers &amp; blends</button>
+    <div class="card"><h3>Share the links</h3>
+      <p class="muted">Send each guest their own taster link. Keep the host link for yourself.</p>${linkRows()}</div>
+    <button class="btn ghost" onclick="location.hash='view=host'">Go to Host Control &rarr;</button>`;
+  $('saveBasics').onclick=async()=>{
+    const nm=$('evName').value.trim()||'Wannabe Winemakers';
+    let n=parseInt($('evNum').value,10);if(isNaN(n)||n<1)n=1;if(n>30)n=30;
+    let st=parseInt($('evStart').value,10);if(isNaN(st)||st<1)st=1;if(st>500)st=500;
+    await setEvent({event_name:nm,num_wines:n,wine_start:st});toast('Saved');renderSetup();
+  };
+  $('saveWines').onclick=async()=>{
+    const mk={},wn={},ab={};
+    wineList().forEach(i=>{
+      const m=$('mk'+i).value.trim();if(m)mk[i]=m;
+      const w=$('wn'+i).value.trim();if(w)wn[i]=w;
+      const c=parseInt($('ab_cab'+i).value,10),f=parseInt($('ab_franc'+i).value,10),p=parseInt($('ab_pv'+i).value,10);
+      if(!isNaN(c)||!isNaN(f)||!isNaN(p))ab[i]={cab:isNaN(c)?0:c,franc:isNaN(f)?0:f,pv:isNaN(p)?0:p};
+    });
+    await setEvent({winemakers:mk,wine_names:wn,actual_blends:ab});toast('Saved');
+  };
+}
+function linkRows(){
+  let h='';
+  for(let i=1;i<=NUM_TASTERS;i++){const u=baseUrl()+'#t='+i;h+=`<div class="copybox"><span class="pill">T${i}</span><input type="text" readonly value="${u}"><button onclick="copyVal(this)">Copy</button></div>`;}
+  h+=`<div class="copybox"><span class="pill" style="background:var(--wine);color:#fff">HOST</span><input type="text" readonly value="${baseUrl()+'#view=host'}"><button onclick="copyVal(this)">Copy</button></div>`;
+  h+=`<div class="copybox"><span class="pill" style="background:var(--gold);color:#3a2e10">RESULTS</span><input type="text" readonly value="${baseUrl()+'#view=results'}"><button onclick="copyVal(this)">Copy</button></div>`;
+  return h;
+}
+function copyVal(btn){const inp=btn.previousElementSibling;inp.select();inp.setSelectionRange(0,9999);navigator.clipboard?.writeText(inp.value).then(()=>toast('Copied')).catch(()=>{document.execCommand('copy');toast('Copied');});}
+
+//// ----- TASTER -----
+async function renderTaster(n){
+  $('hdrRole').textContent='TASTER '+n;
+  const sub=mySub(n);
+  if(sub&&sub.submitted){
+    if(EVENT.released){renderResults(n);return;}
+    renderWaiting(n);startPoll(async()=>{await loadAll();if(EVENT.released){stopPoll();renderResults(n);}},6000);return;
+  }
+  if(!sub||!sub.taster_name){renderNamePrompt(n);return;}
+  renderScoreStep(n);
+}
+function renderNamePrompt(n){
+  app.innerHTML=`
+    ${navTabs('home')}
+    <div class="card center">
+      <div class="big-ico">&#129346;</div>
+      <h2>Taster ${n}</h2>
+      <p class="muted">What should we call you on the leaderboard?</p>
+      <label class="fld">Your name</label>
+      <input type="text" id="nm" placeholder="e.g. Chris">
+      <button class="btn gold" id="go">Start tasting</button>
+    </div>`;
+  $('go').onclick=async()=>{const v=$('nm').value.trim()||('Taster '+n);await saveSubmission(n,{taster_name:v,submitted:false});renderScoreStep(n);};
+}
+const segHTML=(wine,val)=>{
+  let b='';for(let i=1;i<=10;i++)b+=`<button class="${val===i?'sel':''}" onclick="pick(${wine},${i},this)">${i}</button>`;
+  return `<div class="seg" data-wine="${wine}">${b}</div>`;
+};
+function blendHTML(wine,r){
+  let rows='';
+  GRAPES.forEach(g=>{
+    const v=(r['guess_'+g.key]!=null)?r['guess_'+g.key]:33;
+    rows+=`<div class="grow">
+      <span class="lbl"><span class="sw" style="background:${g.color}"></span>${g.name.split(' ')[0]} ${g.name.split(' ')[1]||''}</span>
+      <input type="range" min="0" max="100" value="${v}" id="bl_${wine}_${g.key}" oninput="blendInput(${wine})" onchange="blendSave(${wine})">
+      <span class="pct" id="pc_${wine}_${g.key}">${v}%</span>
+    </div>`;
+  });
+  return `<div class="blend" id="blend_${wine}">${rows}
+    <div class="blendbar" id="bar_${wine}"></div>
+    <div class="blendtot" id="tot_${wine}"></div></div>`;
+}
+function renderScoreStep(n){
+  window._taster=n;
+  const ms=myScores(n);
+  let cards='';
+  wineList().forEach(w=>{
+    const r=ms.find(s=>s.wine===w)||{};
+    cards+=`<div class="card winecard">
+      <h3><span class="winebadge">${w}</span> Wine ${w} <span class="muted" id="nh${w}" style="font-size:15px">${r.nickname?'— &ldquo;'+esc(r.nickname)+'&rdquo;':''}</span></h3>
+      <label class="fld">Your nickname for this bottle — so you remember it</label>
+      <input type="text" id="nick${w}" value="${esc(r.nickname||'')}" placeholder="e.g. The Bold One" onchange="nickChange(${w},this.value)">
+      <label class="fld">Overall — how good is it (1–10)</label>
+      ${segHTML(w,r.overall??null)}
+      <label class="fld">Comment — tasting notes &amp; trash talk</label>
+      <textarea id="cmt${w}" placeholder="aromas, flavors, finish, hot takes…" onchange="commentChange(${w},this.value)">${esc(r.comment||'')}</textarea>
+      <label class="fld">Guess the blend — slide each grape's %</label>
+      ${blendHTML(w,r)}
+    </div>`;
+  });
+  app.innerHTML=`
+    ${navTabs('home')}
+    <div class="saveind" id="saveind">&nbsp;</div>
+    <h2>Score the blends</h2>
+    <p class="muted">Tap a number, drop a comment, slide your blend guess. Everything saves automatically.</p>
+    ${cards}
+    <button class="btn gold" id="toRank">Review &amp; rank &rarr;</button>
+    <div class="foot">Taster ${n} · ${esc(tasterName(n))}</div>`;
+  wineList().forEach(w=>updateBlendUI(w));
+  $('toRank').onclick=()=>renderRankStep(n);
+}
+async function pick(wine,val,btn){
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  await saveScore(window._taster,wine,{overall:val});flashSaved();
+}
+function commentChange(w,v){saveScore(window._taster,w,{comment:v}).then(flashSaved);}
+function nickChange(w,v){const h=$('nh'+w);if(h)h.innerHTML=v.trim()?'— &ldquo;'+esc(v.trim())+'&rdquo;':'';saveScore(window._taster,w,{nickname:v}).then(flashSaved);}
+function readBlend(w){const o={};GRAPES.forEach(g=>{o[g.key]=parseInt($('bl_'+w+'_'+g.key).value,10)||0;});return o;}
+function updateBlendUI(w){
+  const o=readBlend(w),t=o.cab+o.franc+o.pv;
+  GRAPES.forEach(g=>{const pc=$('pc_'+w+'_'+g.key);if(pc)pc.textContent=o[g.key]+'%';});
+  const bar=$('bar_'+w);
+  if(bar){bar.innerHTML=GRAPES.map(g=>`<i style="width:${t?o[g.key]/t*100:0}%;background:${g.color}"></i>`).join('');}
+  const tot=$('tot_'+w);
+  if(tot){tot.textContent='Total: '+t+'%'+(t===100?' ✓':' (will be scaled to 100%)');tot.className='blendtot '+(t===100?'ok':'off');}
+}
+function blendInput(w){updateBlendUI(w);}
+function blendSave(w){const o=readBlend(w);saveScore(window._taster,w,{guess_cab:o.cab,guess_franc:o.franc,guess_pv:o.pv}).then(flashSaved);}
+function flashSaved(){const e=$('saveind');if(e){e.textContent='✓ saved';clearTimeout(e._t);e._t=setTimeout(()=>e.textContent=' ',1200);}}
+
+function renderRankStep(n){
+  const ms=myScores(n),order=suggestedOrder(ms);
+  let items='';
+  order.forEach((w,i)=>{
+    const r=ms.find(s=>s.wine===w)||{};
+    const sc=r.overall!=null?r.overall:'—';
+    const nk=r.nickname?` &ldquo;${esc(r.nickname)}&rdquo;`:'';
+    items+=`<li data-wine="${w}"><span class="pos">${i+1}</span><span class="nm"><b>Wine ${w}</b>${nk} <span class="muted">your score ${sc}</span></span><span class="handle">&#9776;</span></li>`;
+  });
+  app.innerHTML=`
+    ${navTabs('home')}
+    <h2>Your ranking</h2>
+    <p class="muted">Suggested from your scores. <b>Drag the &#9776; handle</b> to set your real order — best blend on top.</p>
+    <ol class="ranklist" id="ranklist">${items}</ol>
+    <button class="btn ghost" id="back">&larr; Back to scores</button>
+    <button class="btn gold" id="submit">Submit my ranking</button>
+    <div class="foot">Taster ${n} · ${esc(tasterName(n))}</div>`;
+  const list=$('ranklist');
+  Sortable.create(list,{handle:'.handle',animation:160,onEnd:()=>[...list.children].forEach((li,i)=>li.querySelector('.pos').textContent=i+1)});
+  $('back').onclick=()=>renderScoreStep(n);
+  $('submit').onclick=()=>{
+    const ord=[...list.children].map(li=>parseInt(li.dataset.wine,10));
+    confirmModal('Submit your ranking?','Once you submit, your scores, comments, blend guesses and ranking lock in. Results appear when the host releases them.','Yes, submit',async()=>{await saveSubmission(n,{rank_order:ord,submitted:true});toast('Submitted! Cheers 🍷');renderTaster(n);});
+  };
+}
+function renderWaiting(n){
+  const done=SUBS.filter(s=>s.submitted).length;
+  app.innerHTML=`
+    ${navTabs('home')}
+    <div class="card center"><div class="big-ico">&#9203;</div><h2>You're locked in</h2>
+      <p class="muted">Thanks, ${esc(tasterName(n))} — your card is submitted.</p>
+      <div class="banner">${done} of ${NUM_TASTERS} tasters submitted</div>
+      <p class="muted">Results &amp; awards appear here the moment the host releases them.</p></div>`;
+}
+
+//// ----- HOST -----
+function renderHost(isRefresh){
+  const sy=window.scrollY;
+  const done=SUBS.filter(s=>s.submitted).length;
+  const _wl=wineList(),_rng=_wl.length?`bags ${_wl[0]}–${_wl[_wl.length-1]}`:'';
+  // score matrix
+  let head='<tr><th>Taster</th>';wineList().forEach(w=>head+=`<th>W${w}</th>`);head+='<th>Done</th></tr>';
+  let body='';
+  for(let t=1;t<=NUM_TASTERS;t++){
+    const sub=SUBS.find(s=>s.taster===t);if(!sub||!sub.taster_name)continue;
+    body+=`<tr><td class="wn">${esc(tasterName(t))}</td>`;
+    wineList().forEach(w=>{const r=SCORES.find(s=>s.taster===t&&s.wine===w);body+=`<td>${r&&r.overall!=null?r.overall:'·'}</td>`;});
+    body+=`<td>${sub&&sub.submitted?'✅':'…'}</td></tr>`;
+  }
+  // comments to pick funniest
+  let cmtSec='';
+  wineList().forEach(w=>{
+    const rows=SCORES.filter(s=>s.wine===w&&s.comment&&s.comment.trim());
+    let rh=rows.length?'':'<div class="muted" style="font-size:14px">No comments yet.</div>';
+    rows.forEach(s=>{
+      const on=EVENT.funniest&&EVENT.funniest.taster===s.taster&&EVENT.funniest.wine===w;
+      rh+=`<div class="guessrow"><span class="pill">${esc(tasterName(s.taster))}</span><span class="g">${esc(s.comment)}</span>
+        <button class="btn ${on?'gold':'ghost'}" style="width:auto;margin:0;padding:6px 10px;font-size:13px" onclick="pickFunny(${s.taster},${w})">${on?'★ funniest':'☆'}</button></div>`;
+    });
+    cmtSec+=`<div class="card"><h3><span class="winebadge">${w}</span> Wine ${w}${winemakerOf(w)?' — '+esc(winemakerOf(w)):''}</h3>${rh}</div>`;
+  });
+  app.innerHTML=`
+    ${navTabs('host',`<button onclick="location.hash='view=setup'">Setup</button><button onclick="location.hash='view=results'">Results</button>`)}
+    <h2>Host Control</h2>
+    <div class="banner"><b>${done} / ${NUM_TASTERS}</b> submitted · ${EVENT.released?'<span style="color:var(--good)">RESULTS RELEASED</span>':'results hidden'}</div>
+    <div class="card center">
+      ${EVENT.released?`<p class="muted">Tasters can see results &amp; awards.</p><button class="btn ghost" id="hideBtn">Hide results again</button>`
+        :`<p class="muted">Set the actual blends in Setup first, then reveal.</p><button class="btn gold" id="releaseBtn">🍷 Release Results</button>`}
+      <button class="btn" onclick="location.hash='view=results'">Preview results &amp; awards &rarr;</button>
+    </div>
+    <h3>Contest settings</h3>
+    <div class="card">
+      <label class="fld">Number of wines</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="hNum" inputmode="numeric" value="${EVENT.num_wines}" style="flex:1">
+        <input type="text" id="hStart" inputmode="numeric" value="${EVENT.wine_start||1}" style="flex:1">
+        <button class="btn" style="width:auto;margin-top:0" id="saveNum">Set</button>
+      </div>
+      <p class="muted" style="margin-top:6px">Wines labeled <b>${_rng}</b>. Set winemakers &amp; actual blends in <b>Setup</b>.</p>
+    </div>
+    <h3>Live scores <span class="muted">(overall, auto-refresh)</span></h3>
+    <div class="card" style="overflow-x:auto"><table class="grid">${head}${body||'<tr><td>No tasters yet</td></tr>'}</table></div>
+    <h3>Comments — pick the funniest ★</h3>
+    ${cmtSec}
+    <h3>Dry run &amp; reset</h3>
+    <div class="card center"><p class="muted">Wipe all scores, comments, blend guesses and rankings; re-hide results. Names &amp; links stay.</p>
+      <button class="btn ghost" id="resetBtn" style="color:var(--bad);border-color:var(--bad)">&#8635; Clear all &amp; restart</button></div>
+    <div class="foot">Auto-refreshing every 5s</div>`;
+  const rb=$('releaseBtn');if(rb)rb.onclick=()=>confirmModal('Release results?','All submitted tasters will immediately see the winner, awards and blend reveals.','Release now',async()=>{await setEvent({released:true});toast('Released');await loadAll();renderHost();});
+  const hb=$('hideBtn');if(hb)hb.onclick=async()=>{await setEvent({released:false});toast('Hidden');await loadAll();renderHost();};
+  const rsb=$('resetBtn');if(rsb)rsb.onclick=()=>confirmModal('Clear everything?','Permanently deletes scores, comments, guesses and rankings, and hides results. Names &amp; links kept.','Yes, clear all',async()=>{await resetEvent();});
+  const snb=$('saveNum');if(snb)snb.onclick=async()=>{let n=parseInt($('hNum').value,10);if(isNaN(n)||n<1)n=1;if(n>30)n=30;let st=parseInt($('hStart').value,10);if(isNaN(st)||st<1)st=1;if(st>500)st=500;await setEvent({num_wines:n,wine_start:st});toast('Saved');await loadAll();renderHost();};
+  if(isRefresh)window.scrollTo(0,sy);
+}
+async function pickFunny(t,w){
+  const on=EVENT.funniest&&EVENT.funniest.taster===t&&EVENT.funniest.wine===w;
+  await setEvent({funniest:on?{}:{taster:t,wine:w}});await loadAll();renderHost(true);
+}
+
+//// ----- RESULTS / DEBRIEF -----
+function awardRow(ico,title,who,detail){
+  return `<div class="award"><div class="ico">${ico}</div><div class="t"><div class="ttl">${esc(title)}</div><div class="who">${who}</div>${detail?`<div class="muted">${detail}</div>`:''}</div></div>`;
+}
+function renderResults(viewerTaster,isRefresh){
+  const sy=window.scrollY;
+  const isHost=hashParams().view==='results';
+  if(!EVENT.released&&viewerTaster!=null){renderWaiting(viewerTaster);return;}
+  if(!EVENT.released&&!isHost){
+    app.innerHTML=`${navTabs('home')}<div class="card center"><div class="big-ico">&#128274;</div><h2>Results not released</h2><p class="muted">The host hasn't revealed the throwdown yet. Hang tight!</p></div>`;
+    startPoll(async()=>{await loadAll();if(EVENT.released){stopPoll();renderResults(viewerTaster);}},6000);return;
+  }
+  const {ranked,voters}=groupResults();
+  const finalOrder=ranked.map(r=>r.wine);
+  const winner=ranked[0];
+  // leaderboards
+  const bl=blendLeaderboard();
+  const rc=rankCloseness(finalOrder);
+  const sp=similarPairs();
+  const ps=palateStats();
+  const dv=divisiveWine();
+  const generous=ps.slice().sort((a,b)=>b.avg-a.avg)[0];
+  const tough=ps.slice().sort((a,b)=>a.avg-b.avg)[0];
+  // results rows
+  let rows='';
+  ranked.forEach((r,i)=>{
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+    const nicks=wineNicknames(r.wine);
+    const mk=winemakerOf(r.wine);
+    const wnm=(EVENT.wine_names&&EVENT.wine_names[r.wine])||'';
+    const a=actualBlend(r.wine);
+    const blendStr=a?`<div class="muted" style="font-size:13px">blend: ${a.cab}% Cab Sauv · ${a.franc}% Cab Franc · ${a.pv}% Petit Verdot</div>`:'';
+    rows+=`<div class="resultrow ${i===0?'win':''}">
+      <div class="rk">${medal}</div>
+      <div class="meta">
+        <div style="font-size:19px;color:var(--wine)"><b>Wine ${r.wine}</b>${mk?` — ${esc(mk)}`:''}${wnm?` <span class="muted">(${esc(wnm)})</span>`:''}</div>
+        ${nicks.length?`<div class="muted" style="font-size:13px">tasters called it: ${nicks.slice(0,3).map(esc).join(' · ')}</div>`:''}
+        ${blendStr}
+        <div class="muted">avg score ${r.avgOverall?r.avgOverall.toFixed(1):'—'} · ${r.nvotes} ratings</div>
+      </div>
+      <div class="score" style="text-align:center;min-width:54px">${r.borda}<div style="font-size:10px;letter-spacing:1px;color:var(--muted)">PTS</div></div>
+    </div>`;
+  });
+  // awards
+  let awards='';
+  if(winner){
+    const mk=winemakerOf(winner.wine);
+    awards+=awardRow('🏆','Best Blend — Champion Winemaker', mk?esc(mk):('Wine '+winner.wine), `Wine ${winner.wine} · ${winner.borda} pts`);
+  }
+  if(bl.length){const b=bl[0];awards+=awardRow('🧪','Master Blender (closest blend guesses)',esc(tasterName(b.taster)),`avg miss ${b.avg.toFixed(0)} pts across ${b.counted} wine${b.counted===1?'':'s'}`);}
+  if(rc.length){const c=rc[0];awards+=awardRow('🔮','Crowd Whisperer (ranked closest to the room)',esc(tasterName(c.taster)),`off by ${c.dist} position${c.dist===1?'':'s'} total`);}
+  if(EVENT.funniest&&EVENT.funniest.taster){
+    const fr=SCORES.find(s=>s.taster===EVENT.funniest.taster&&s.wine===EVENT.funniest.wine);
+    if(fr)awards+=awardRow('😂','Funniest Comment',esc(tasterName(fr.taster)),`&ldquo;${esc(fr.comment)}&rdquo;`);
+  }
+  if(generous)awards+=awardRow('🤗','Most Generous Palate',esc(tasterName(generous.taster)),`avg ${generous.avg.toFixed(1)} given`);
+  if(tough&&(!generous||tough.taster!==generous.taster))awards+=awardRow('🧐','Toughest Critic',esc(tasterName(tough.taster)),`avg ${tough.avg.toFixed(1)} given`);
+  if(sp.length){const p=sp[0];awards+=awardRow('👯','Palate Twins',`${esc(tasterName(p.a))} &amp; ${esc(tasterName(p.b))}`,`rankings differed by just ${p.dist}`);}
+  if(dv)awards+=awardRow('⚔️','Most Divisive Pour',`Wine ${dv.wine}`,`scores ranged ${dv.mn}–${dv.mx}`);
+  // per-wine best blend guesser
+  let perWine='';
+  wineList().forEach(w=>{
+    const a=actualBlend(w);if(!a)return;
+    const best=bestBlendGuessForWine(w);
+    perWine+=`<div class="guessrow"><span class="pill">Wine ${w}</span><span class="g">${a.cab}/${a.franc}/${a.pv} (C/F/PV)</span>${best?`<b>${esc(tasterName(best.taster))} (off ${best.e})</b>`:'<span class="muted">no guesses</span>'}</div>`;
+  });
+
+  let myBlock='';
+  if(viewerTaster!=null){
+    const myRankPos=rc.findIndex(x=>x.taster===viewerTaster);
+    const myBlend=bl.findIndex(x=>x.taster===viewerTaster);
+    const mySc=SCORES.filter(s=>s.taster===viewerTaster&&s.overall!=null);
+    const myAvg=mySc.length?(mySc.reduce((a,b)=>a+b.overall,0)/mySc.length).toFixed(1):'—';
+    const myTop=mySub(viewerTaster);const myPick=(myTop&&myTop.rank_order&&myTop.rank_order[0]);
+    myBlock=`<div class="card" style="border-color:var(--gold)"><h3>Your debrief, ${esc(tasterName(viewerTaster))}</h3>
+      <div class="muted">Your top pick: <b>Wine ${myPick||'—'}</b>${myPick&&winemakerOf(myPick)?' ('+esc(winemakerOf(myPick))+')':''} ${myPick&&winner&&myPick===winner.wine?'— you backed the champ! 🎯':''}</div>
+      <div class="muted">You gave an average score of <b>${myAvg}</b>.</div>
+      ${myRankPos>=0?`<div class="muted">Crowd Whisperer rank: <b>#${myRankPos+1}</b> of ${rc.length} (off by ${rc[myRankPos].dist}).</div>`:''}
+      ${myBlend>=0?`<div class="muted">Blend-guessing rank: <b>#${myBlend+1}</b> of ${bl.length} (avg miss ${bl[myBlend].avg.toFixed(0)}).</div>`:''}
+    </div>`;
+  }
+
+  app.innerHTML=`
+    ${navTabs('home',isHost?`<button onclick="location.hash='view=host'">Host</button>`:'')}
+    <h2>The Throwdown Results</h2>
+    <div class="banner">Points: each taster's 1st pick earns ${EVENT.num_wines}, down to 1 for last — summed across everyone. ${voters} ranking${voters===1?'':'s'} counted.</div>
+    ${winner?(()=>{const mk=winemakerOf(winner.wine);const a=actualBlend(winner.wine);return `<div class="card center" style="border-color:var(--gold)"><div class="big-ico">🏆</div><h3 style="margin:0">Champion: ${mk?esc(mk):'Wine '+winner.wine}</h3><div class="muted">Wine ${winner.wine}${EVENT.wine_names&&EVENT.wine_names[winner.wine]?' · '+esc(EVENT.wine_names[winner.wine]):''} · ${winner.borda} pts</div>${a?`<div class="muted">${a.cab}% Cab Sauv · ${a.franc}% Cab Franc · ${a.pv}% Petit Verdot</div>`:''}</div>`;})():''}
+    ${myBlock}
+    <h3>Awards</h3>
+    ${awards||'<div class="muted">Set actual blends &amp; pick a funniest comment in Host to unlock all awards.</div>'}
+    <h3>Full ranking</h3>
+    ${rows}
+    <h3>Blend reveal — closest guess per wine</h3>
+    <div class="card">${perWine||'<div class="muted" style="font-size:14px">Add actual blends in Setup to score guesses.</div>'}</div>
+    <div class="foot">Element 79 · Wannabe Winemakers</div>`;
+  if(isRefresh)window.scrollTo(0,sy);
+}
+
+// expose inline handlers
+window.pick=pick;window.commentChange=commentChange;window.nickChange=nickChange;
+window.blendInput=blendInput;window.blendSave=blendSave;window.copyVal=copyVal;window.pickFunny=pickFunny;
+
+//// ---------- BOOT ----------
+route();
+</script>
+</body>
+</html>
