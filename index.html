@@ -450,7 +450,7 @@ async function route(){
   stopPoll();
   const p=hashParams();
   await loadAll();
-  $('hdrSub').textContent=EVENT.event_name||'Custom Blend Throwdown';
+  $('hdrSub').textContent='Custom Blend Throwdown · Element 79';
   if(p.view==='rules'){$('hdrRole').textContent='';renderRules();return;}
   if(p.view==='host'){$('hdrRole').textContent='HOST CONTROL';renderHost();startPoll(async()=>{if(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;await loadAll();renderHost(true);},5000);return;}
   if(p.view==='setup'){$('hdrRole').textContent='HOST SETUP';renderSetup();return;}
