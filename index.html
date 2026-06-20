@@ -225,13 +225,74 @@
   .big-ico{filter:drop-shadow(0 6px 10px rgba(0,0,0,.12));animation:rise .5s both}
   .toast{border-radius:30px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.4)}
   .modal{border-radius:20px;box-shadow:0 30px 70px -20px rgba(0,0,0,.5)}
+
+  /* ===== on-theme blend slider colors (wine / garnet / plum) ===== */
+  :root{ --cab:#5e2750; --franc:#b23a46; --pv:#3a2f6e; }
+  .grow input[type=range]::-webkit-slider-thumb{border-color:var(--gold)}
+  .blendbar i{box-shadow:inset 0 0 6px rgba(0,0,0,.18)}
+
+  /* ===== refined brand lockup ===== */
+  .brandrule{height:1px;width:128px;margin:9px auto 7px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.85}
+  header.app .name{font-weight:600;letter-spacing:7px}
+  header.app .sub{font-size:9.5px;letter-spacing:3.5px}
+  .eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);
+    font-weight:600;margin-bottom:6px}
+
+  /* ===== 3-second cinematic intro ===== */
+  #splash{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    background:radial-gradient(120% 90% at 50% 36%, #2f2517 0%, #14100a 72%);
+    animation:splashHide .8s ease 3s forwards;overflow:hidden}
+  #splash:before{content:"";position:absolute;left:-30%;top:0;width:55%;height:100%;
+    background:linear-gradient(105deg,transparent,rgba(255,236,180,.10),transparent);
+    transform:skewX(-18deg);animation:spSheen 2.6s ease-in-out .6s 1}
+  #splash.hide{opacity:0;pointer-events:none;transition:opacity .55s ease}
+  .sp-inner{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px}
+  .sp-tile{position:relative;border:2px solid var(--gold);border-radius:15px;padding:16px 24px 18px;line-height:1;
+    background:linear-gradient(160deg,#2e2415,#1a140d);
+    box-shadow:0 0 34px rgba(201,162,75,.4), inset 0 0 24px rgba(201,162,75,.2);
+    animation:spTile 1.1s cubic-bezier(.2,.8,.2,1) both}
+  .sp-tile .sp-num{position:absolute;top:7px;left:11px;font-size:12px;color:var(--gold-soft)}
+  .sp-tile .sp-mass{position:absolute;top:7px;right:11px;font-size:9px;color:var(--gold-soft)}
+  .sp-tile .sp-sym{font-family:'Fraunces',serif;font-size:56px;font-style:italic;font-weight:700;
+    color:var(--gold-bright);text-shadow:0 2px 20px rgba(240,213,133,.55)}
+  .sp-tile .sp-el{display:block;font-size:11px;letter-spacing:6px;color:var(--gold-soft);margin-top:5px}
+  .sp-word{font-family:'Fraunces',serif;color:#fff;font-size:23px;letter-spacing:7px;margin-top:26px;
+    opacity:0;animation:spUp 1s ease .55s both}
+  .sp-rule{height:1px;width:0;margin:16px 0 14px;
+    background:linear-gradient(90deg,transparent,var(--gold-bright),transparent);
+    animation:spRule 1s ease 1s both}
+  .sp-tag{font-size:10.5px;letter-spacing:4px;text-transform:uppercase;color:var(--gold-soft);
+    opacity:0;animation:spUp 1s ease 1.3s both}
+  .sp-skip{position:absolute;bottom:30px;font-size:10px;letter-spacing:3px;text-transform:uppercase;
+    color:rgba(243,226,180,.5);opacity:0;animation:spUp .8s ease 2s both}
+  @keyframes spTile{0%{opacity:0;transform:scale(.7) translateY(14px);filter:blur(7px)}100%{opacity:1;transform:none;filter:none}}
+  @keyframes spUp{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:none}}
+  @keyframes spRule{0%{width:0;opacity:0}100%{width:240px;opacity:1}}
+  @keyframes spSheen{0%{left:-40%}100%{left:120%}}
+  @keyframes splashHide{to{opacity:0;visibility:hidden}}
+  @media (prefers-reduced-motion: reduce){
+    #splash,#splash:before,.sp-tile,.sp-word,.sp-rule,.sp-tag,.sp-skip{animation:none!important}
+    #splash{animation:splashHide .4s ease 1.4s forwards!important}
+  }
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true">
+  <div class="sp-inner">
+    <div class="sp-tile"><span class="sp-num">79</span><span class="sp-mass">Au</span><span class="sp-sym">Au</span><span class="sp-el">Gold</span></div>
+    <div class="sp-word">WANNABE&nbsp;WINEMAKERS</div>
+    <div class="sp-rule"></div>
+    <div class="sp-tag">The Element&nbsp;79 Blending Competition</div>
+  </div>
+  <div class="sp-skip">tap to enter</div>
+</div>
 <header class="app">
   <div class="autile"><span class="num">79</span><span class="mass">Au</span><span class="sym">Au</span><div class="el">Gold</div></div>
   <div class="name">WANNABE WINEMAKERS</div>
-  <div class="sub" id="hdrSub">Custom Blend Throwdown</div>
+  <div class="brandrule"></div>
+  <div class="sub" id="hdrSub">Custom Blend Throwdown · Element 79</div>
   <div class="role" id="hdrRole"></div>
 </header>
 <div class="wrap" id="app"></div>
@@ -477,7 +538,7 @@ function renderHome(){
     ${navTabs('home')}
     <div class="banner">${esc(EVENT.event_name)} · ${EVENT.num_wines} custom blends</div>
     <div class="card center">
-      <div class="big-ico">&#129346;&#127863;</div>
+      <div class="eyebrow">Element 79 · Fair Play</div>
       <h2>Who poured the best?</h2>
       <p class="muted">Same three grapes — Cab Sauv, Cab Franc, Petit Verdot — wildly different blends. Taste blind, score, guess the blend, crown a champion.</p>
       <p class="muted">Tap your name to begin. Each guest has their own link / QR.</p>
@@ -956,6 +1017,16 @@ window.pick=pick;window.commentChange=commentChange;window.nickChange=nickChange
 window.blendInput=blendInput;window.blendSave=blendSave;window.copyVal=copyVal;window.pickFunny=pickFunny;window.toggleTaster=toggleTaster;
 
 //// ---------- BOOT ----------
+(function(){
+  const sp=document.getElementById('splash');
+  if(!sp) return;
+  // show the cinematic intro once per browser session; reloads skip it
+  if(sessionStorage.getItem('e79_intro')){ sp.remove(); return; }
+  sessionStorage.setItem('e79_intro','1');
+  const done=()=>{ sp.classList.add('hide'); setTimeout(()=>sp.remove(),650); };
+  sp.addEventListener('click',done);
+  setTimeout(done,3050);
+})();
 route();
 </script>
 </body>
